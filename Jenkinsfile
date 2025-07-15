@@ -5,7 +5,7 @@ pipeline {
   // environment {
   //   DEPLOY_KEY = credentials('jenkins-admin')
   // }
-
+  
   triggers {
     githubPush()
   }

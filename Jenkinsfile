@@ -61,6 +61,11 @@ pipeline {
         }
       }
     }
+    stage('hello1'){
+      steps{
+        echo 'automatic run'
+      }
+    }
 
     // 🟢 Optional Deploy Stage — Uncomment if/when ready
     /*

@@ -6,5 +6,8 @@ pipeline {
         git branch: 'main', url: ' https://github.com/mobhim-hub/jenkins-github.git'
       }
     }
+  environment {
+      MY_SECRET = credentials('my-secret-id')
+    }
   }
 }

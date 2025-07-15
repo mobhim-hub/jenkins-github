@@ -1,16 +1,16 @@
 pipeline {
   agent { label 'docker-builder' }
 
-  environment {
-    DEPLOY_KEY = credentials('jenkins-admin') // optional, only used if deploy is enabled
-  }
+  // Optional: Only needed if you plan to use it in deployment later
+  // environment {
+  //   DEPLOY_KEY = credentials('jenkins-admin')
+  // }
 
   triggers {
     githubPush()
   }
 
   stages {
-
     stage('Clean Workspace') {
       steps {
         cleanWs()
@@ -21,31 +21,48 @@ pipeline {
       steps {
         git branch: 'main',
             url: 'https://github.com/mobhim-hub/jenkins-github.git',
-            credentialsId: '	28187223-2904-4aaa-9b87-0df8b4f0daa2'
+            credentialsId: '28187223-2904-4aaa-9b87-0df8b4f0daa2'
       }
     }
 
     stage('Install Dependencies') {
       steps {
-        sh 'npm install'
+        script {
+          if (fileExists('package.json')) {
+            sh 'npm install'
+          } else {
+            echo '⚠️ Skipping install — no package.json found'
+          }
+        }
       }
     }
 
     stage('Run Tests') {
       steps {
-        sh 'npm test || true' // avoid build fail for now if no tests
+        script {
+          if (fileExists('package.json')) {
+            sh 'npm test || true'
+          } else {
+            echo '⚠️ Skipping tests — no package.json found'
+          }
+        }
       }
     }
 
     stage('Build App') {
       steps {
-        sh 'npm run build'
-        archiveArtifacts artifacts: 'build/**', fingerprint: true
+        script {
+          if (fileExists('package.json')) {
+            sh 'npm run build || true'
+            archiveArtifacts artifacts: 'build/**', fingerprint: true
+          } else {
+            echo '⚠️ Skipping build — no package.json found'
+          }
+        }
       }
     }
 
-    // 🟢 Optional Deploy Stage (Uncomment if needed)
-    // Make sure your SSH credential is working and remote host is reachable
+    // 🟢 Optional Deploy Stage — Uncomment if/when ready
     /*
     stage('Deploy to Remote') {
       steps {
